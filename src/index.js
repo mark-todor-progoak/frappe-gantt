@@ -87,6 +87,8 @@ export default class Gantt {
             popup_trigger: 'click',
             custom_popup_html: null,
             language: 'en',
+            start_date: null,
+            end_date: null,
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -105,6 +107,10 @@ export default class Gantt {
 
             // cache index
             task._index = i;
+
+            if (typeof task.custom_index === 'number') {
+                task._index = task.custom_index;
+            }
 
             // invalid dates
             if (!task.start && !task.end) {
@@ -238,6 +244,15 @@ export default class Gantt {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
         }
+
+        if(this.options.start_date) {
+            const customStartDate = date_utils_default.add(this.options.start_date, 1 , "day");
+            this.gantt_start = customStartDate 
+          }
+          if(this.options.end_date) {
+            const customEndDate = date_utils_default.add(this.options.end_date, 1 , "day");
+            this.gantt_end = customEndDate
+          }
     }
 
     setup_date_values() {
