@@ -38,6 +38,20 @@ var Gantt = (function () {
             'Noviembre',
             'Diciembre',
         ],
+        it: [
+            'Gennaio',
+            'Febbraio',
+            'Marzo',
+            'Aprile',
+            'Maggio',
+            'Giugno',
+            'Luglio',
+            'Agosto',
+            'Settembre',
+            'Ottobre',
+            'Novembre',
+            'Dicembre',
+        ],
         ru: [
             'Январь',
             'Февраль',
@@ -107,6 +121,34 @@ var Gantt = (function () {
             '十月',
             '十一月',
             '十二月',
+        ],
+        de: [
+            'Januar',
+            'Februar',
+            'März',
+            'April',
+            'Mai',
+            'Juni',
+            'Juli',
+            'August',
+            'September',
+            'Oktober',
+            'November',
+            'Dezember',
+        ],
+        hu: [
+            'Január',
+            'Február',
+            'Március',
+            'Április',
+            'Május',
+            'Június',
+            'Július',
+            'Augusztus',
+            'Szeptember',
+            'Október',
+            'November',
+            'December',
         ],
     };
 
@@ -541,7 +583,7 @@ var Gantt = (function () {
                 height: this.height,
                 rx: this.corner_radius,
                 ry: this.corner_radius,
-                class: 'bar',
+                class: "bar" + (this.task.custom_class || ''),
                 append_to: this.bar_group,
             });
 
@@ -828,6 +870,7 @@ var Gantt = (function () {
         }
 
         update_progressbar_position() {
+            if (this.invalid) return;
             this.$bar_progress.setAttribute('x', this.$bar.getX());
             this.$bar_progress.setAttribute(
                 'width',
@@ -849,6 +892,7 @@ var Gantt = (function () {
         }
 
         update_handle_position() {
+            if (this.invalid) return;
             const bar = this.$bar;
             this.handle_group
                 .querySelector('.handle.left')
@@ -1115,6 +1159,8 @@ var Gantt = (function () {
                 popup_trigger: 'click',
                 custom_popup_html: null,
                 language: 'en',
+                start_date: null,
+                end_date: null,
             };
             this.options = Object.assign({}, default_options, options);
         }
@@ -1133,6 +1179,10 @@ var Gantt = (function () {
 
                 // cache index
                 task._index = i;
+
+                if (typeof task.custom_index === 'number') {
+                    task._index = task.custom_index;
+                }
 
                 // invalid dates
                 if (!task.start && !task.end) {
@@ -1266,6 +1316,15 @@ var Gantt = (function () {
                 this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
                 this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
             }
+
+            if(this.options.start_date) {
+                const customStartDate = date_utils_default.add(this.options.start_date, 1 , "day");
+                this.gantt_start = customStartDate; 
+              }
+              if(this.options.end_date) {
+                const customEndDate = date_utils_default.add(this.options.end_date, 1 , "day");
+                this.gantt_end = customEndDate;
+              }
         }
 
         setup_date_values() {
@@ -1419,10 +1478,7 @@ var Gantt = (function () {
                     tick_class += ' thick';
                 }
                 // thick ticks for quarters
-                if (
-                    this.view_is(VIEW_MODE.MONTH) &&
-                    (date.getMonth() + 1) % 3 === 0
-                ) {
+                if (this.view_is(VIEW_MODE.MONTH) && date.getMonth() % 3 === 0) {
                     tick_class += ' thick';
                 }
 
