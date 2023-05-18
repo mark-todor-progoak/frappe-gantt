@@ -246,11 +246,11 @@ export default class Gantt {
         }
 
         if(this.options.start_date) {
-            const customStartDate = date_utils_default.add(this.options.start_date, 1 , "day");
+            const customStartDate = date_utils.add(this.options.start_date, 1 , "day");
             this.gantt_start = customStartDate 
           }
           if(this.options.end_date) {
-            const customEndDate = date_utils_default.add(this.options.end_date, 1 , "day");
+            const customEndDate = date_utils.add(this.options.end_date, 1 , "day");
             this.gantt_end = customEndDate
           }
     }
