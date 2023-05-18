@@ -17,8 +17,8 @@ const VIEW_MODE = {
 
 export default class Gantt {
     constructor(wrapper, tasks, options) {
-        this.setup_wrapper(wrapper);
         this.setup_options(options);
+        this.setup_wrapper(wrapper);
         this.setup_tasks(tasks);
         // initialize with default view mode
         this.change_view_mode();
@@ -26,50 +26,50 @@ export default class Gantt {
     }
 
     setup_wrapper(element) {
-        let svg_element, wrapper_element;
+        let svg_element, wrapper_element, elementId;
 
         // CSS Selector is passed
         if (typeof element === 'string') {
+            elementId = element.replace('#', '')
             element = document.querySelector(element);
         }
 
         // get the SVGElement
-        if (element instanceof HTMLElement) {
-            wrapper_element = element;
-            svg_element = element.querySelector('svg');
-        } else if (element instanceof SVGElement) {
+        if (element instanceof SVGElement) {
             svg_element = element;
         } else {
             throw new TypeError(
                 'Frappé Gantt only supports usage of a string CSS selector,' +
-                    " HTML DOM element or SVG DOM element for the 'element' parameter"
+                    " SVG DOM element for the 'element' parameter"
             );
         }
 
-        // svg element
-        if (!svg_element) {
-            // create it
-            this.$svg = createSVG('svg', {
-                append_to: wrapper_element,
-                class: 'gantt',
-            });
-        } else {
-            this.$svg = svg_element;
-            this.$svg.classList.add('gantt');
+        this.$svg = svg_element;
+        this.$svg.classList.add("gantt");
+
+        const containerElementId = elementId + '_frappe_holder';
+        this.$container = document.getElementById(containerElementId)
+        /* if container not exists create one */
+        if (!this.$container) {
+            this.$container = document.createElement("div");
+            this.$container.setAttribute('id', containerElementId)
         }
 
-        // wrapper element
-        this.$container = document.createElement('div');
-        this.$container.classList.add('gantt-container');
-
+        /* add class to container */
+        this.$container.classList.add("gantt-container");
+        /* append container */
         const parent_element = this.$svg.parentElement;
         parent_element.appendChild(this.$container);
-        this.$container.appendChild(this.$svg);
 
-        // popup wrapper
-        this.popup_wrapper = document.createElement('div');
-        this.popup_wrapper.classList.add('popup-wrapper');
-        this.$container.appendChild(this.popup_wrapper);
+        /* remove previous child element */
+        document.getElementById(elementId).remove()
+
+        this.$container.appendChild(this.$svg);
+        if(this.options.need_pop_up) {
+            this.popup_wrapper = document.createElement("div");
+            this.popup_wrapper.classList.add("popup-wrapper");
+            this.$container.appendChild(this.popup_wrapper);
+        }
     }
 
     setup_options(options) {
@@ -89,6 +89,7 @@ export default class Gantt {
             language: 'en',
             start_date: null,
             end_date: null,
+            need_pop_up: false, 
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -896,6 +897,8 @@ export default class Gantt {
     }
 
     show_popup(options) {
+        if(!this.options.need_pop_up) return ;
+
         if (!this.popup) {
             this.popup = new Popup(
                 this.popup_wrapper,
